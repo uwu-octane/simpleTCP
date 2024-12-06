@@ -4,14 +4,18 @@
 #include "echo/tcp_echo_server.h"
 #include "net.h"
 #include "netinterface_pcap.h"
-
+#include "dbg.h"
 //network driver init
+
 net_err_t netdriver_init(void) {
     return netif_pcap_open();
 }
 
+
 int main(void) {
     //protocol stack init and start
+    dbg_info(3,"dbg_infor");
+    dbg_assert(1==2, "test");
     net_init();
     net_start();
 
