@@ -1,0 +1,66 @@
+# 忽略 macOS 系统文件
+.DS_Store
+
+# 忽略 CMake 生成的文件
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# 忽略编译生成的文件
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.a
+*.lib
+*.exe
+*.out
+
+# 忽略调试文件
+*.gch
+*.pch
+
+# 忽略日志和临时文件
+*.log
+*.tmp
+*.swp
+*.bak
+*.old
+*.pid
+*.seed
+
+# 忽略 IDE 和编辑器相关文件
+.idea/
+.vscode/
+*.code-workspace
+
+# 忽略生成的文档文件
+*.pdf
+*.docx
+*.html
+
+# 忽略版本控制工具生成的文件
+*.orig
+*.rej
+*.patch
+
+# 忽略覆盖率文件
+*.gcda
+*.gcno
+*.gcov
+
+# 忽略测试结果
+test-results/
+
+# 忽略用户配置文件
+*.user
+*.session
+*.suo
+
+# 忽略自动生成的配置文件
+config.h
+
+.vscode
+
