@@ -2,7 +2,7 @@
 #define DBG_H
 
 //#define EN_DEBUG
-
+#include "cfg.h"
 #define DBG_STYLE_ERROR "\033[1;31m" //red
 #define DBG_STYLE_WARN "\033[1;33m" //yellow
 #define DBG_STYLE_INFO "\033[1;32m" //green
