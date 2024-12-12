@@ -5,11 +5,13 @@
 net_err_t mblock_init(mblock_t *mblock, void * mem, int blk_size, int blk_count, nlocker_type_t type){
     nlist_init(&mblock->free_list);
     uint8_t *buf = (uint8_t *)mem;
+    //todo: have to modify to adapt the size
     if (blk_size < sizeof(nlist_node_t)) {
         dbg_warning(DBG_MBLOCK, "mblock_init: block size is too small");
         blk_size = sizeof(nlist_node_t);
         //return NET_ERR_INVALID;
     }
+
     for (int i = 0; i < blk_count; i++) {
         nlist_node_t *block_node = (nlist_node_t *)(buf + i * blk_size);
         nlist_node_init(block_node);
@@ -26,7 +28,7 @@ net_err_t mblock_init(mblock_t *mblock, void * mem, int blk_size, int blk_count,
         }
     }
     mblock->start = mem;
-    mblock->size = blk_size;
+    mblock->size = blk_count;
     mblock->used = 0;
     //mblock->buf = (char *)mem;
 

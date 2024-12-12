@@ -75,3 +75,6 @@ nlist_iterator_t nlist_iterator(nlist_t *list){
     it.node = list->head;
     return it;
 }
+int nlist_iterator_has_next(nlist_iterator_t *it) {
+    return it->node != (nlist_node_t *)0;
+}

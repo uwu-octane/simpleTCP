@@ -3,6 +3,8 @@
 
 //#define EN_DEBUG
 #include "cfg.h"
+#include <stddef.h> // for offsetof
+
 #define DBG_STYLE_ERROR "\033[1;31m" //red
 #define DBG_STYLE_WARN "\033[1;33m" //yellow
 #define DBG_STYLE_INFO "\033[1;32m" //green
@@ -27,4 +29,8 @@ void dbg_print(int debugger_module_level,int s_level,const char* file, const cha
     } while (0)
 
 
+#define container_of(ptr, type, member) \
+((type *)((char *)(ptr) - offsetof(type, member)))
+
+#define DEBUG_DISP_ENABLED(module)  (module>=DBG_LEVEL_INFO)
 #endif // DBG_H

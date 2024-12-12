@@ -18,9 +18,12 @@ static inline nlist_node_t * nlist_node_pre(nlist_node_t *node){
   return node->pre;
 }
 
-static inline void nlist_node_set_next(nlist_node_t *node, nlist_node_t *next){
+static inline void nlist_node_link(nlist_node_t *node, nlist_node_t *next){
   node->next = next;
+  next->pre = node;
 }
+
+
 
 
 typedef struct _nlist_t{
@@ -55,6 +58,7 @@ void nlist_remove(nlist_t *list, nlist_node_t *node);
 
 void nlist_insert(nlist_t *list, nlist_node_t *node, nlist_node_t *new_node);
 
+
 typedef struct iterator_t {
   nlist_t *list;
   nlist_node_t *node;
@@ -71,5 +75,6 @@ static inline nlist_node_t * nlist_iterator_next(nlist_iterator_t *it){
   //it->node = nlist_node_next(it->node);
   return node;
 }
+int nlist_iterator_has_next(nlist_iterator_t *it);
 
 #endif // NLIST_H

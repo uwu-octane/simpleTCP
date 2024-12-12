@@ -104,3 +104,20 @@ void* fixedqueue_receive(fixedqueue_t *queue,  int timeout) {
     sys_sem_notify(queue->send_sem);
     return msg;
 }
+
+void fixedqueue_destory(fixedqueue_t *queue) {
+    sys_sem_free(queue->receive_sem);
+    sys_sem_free(queue->send_sem);
+    nlocker_destory(&queue->locker);
+}
+
+
+
+int fixedqueue_count(fixedqueue_t *queue) {
+
+    nlocker_lock(&queue->locker);
+    int cnt = queue->count;
+    nlocker_unlock(&queue->locker);
+
+    return cnt;
+}

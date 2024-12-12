@@ -29,4 +29,6 @@ net_err_t fixedqueue_send(fixedqueue_t *queue, void *msg, int timeout);
 //timeout：等待时间，单位为毫秒。如果 timeout < 0 表示不想等待队列变为可用（非阻塞接收），
 void* fixedqueue_receive(fixedqueue_t *queue,  int timeout);
 
+void fixedqueue_destory(fixedqueue_t *queue);
+int fixedqueue_count(fixedqueue_t *queue);
 #endif // FIXEDQUEUE_H

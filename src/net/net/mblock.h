@@ -10,7 +10,7 @@ typedef struct _mblock_t {
     void *start;
     nlocker_t locker;
     sys_sem_t alloc_sem;
-
+    //length of free_list
     int size;
     int used;
    // char *buf;

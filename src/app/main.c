@@ -7,6 +7,7 @@
 #include "dbg.h"
 #include "nlist.h"
 #include "mblock.h"
+#include "pktbuf.h"
 //network driver init
 
 net_err_t netdriver_init(void) {
@@ -63,17 +64,38 @@ void nlist_test() {
     }
 }
 
+pktbuf_t * pktbuf_test(void) {
+    pktbuf_init();
+    //pktblk_t * pktblk = pktblk_list_alloc(512, 1);
+    //pktbuf_free(pktbuf);
+    pktbuf_t  *test = pktbuf_alloc(177, 1);
+    return test;
+}
+
+
 int main(void) {
     //protocol stack init and start
     //dbg_info(3,"dbg_infor");
     //dbg_assert(1==2, "test");
     //mblock_test();
-    net_init();
-    net_start();
+    int append = 0;
+    pktbuf_t * pktbuf = pktbuf_test();
+    nlist_t list = pktbuf->blk_list;
+    /*printf("size: %d\n", pktbuf->total_size);
+    nlist_iterator_t iterator = nlist_iterator(&list);
+    while (nlist_iterator_has_next(&iterator)) {
+        plat_printf("list element: %p\n", nlist_iterator_next(&iterator));
+    }*/
+    //plat_printf("pktblk: %p\n", pktblk);
 
-    netdriver_init();
+    //net_init();
+    //net_start();
+
+
+   // netdriver_init();
 
     while (1) {
+        //plat_printf("main loop\n");
         sys_sleep(10);
     }
     return 0;
