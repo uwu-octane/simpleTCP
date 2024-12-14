@@ -76,5 +76,6 @@ static inline nlist_node_t * nlist_iterator_next(nlist_iterator_t *it){
   return node;
 }
 int nlist_iterator_has_next(nlist_iterator_t *it);
-
+nlist_node_t *nlist_remove_head(nlist_t *list);
+void nlist_remove_list(nlist_t *list);
 #endif // NLIST_H

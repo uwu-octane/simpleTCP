@@ -68,7 +68,20 @@ pktbuf_t * pktbuf_test(void) {
     pktbuf_init();
     //pktblk_t * pktblk = pktblk_list_alloc(512, 1);
     //pktbuf_free(pktbuf);
-    pktbuf_t  *test = pktbuf_alloc(177, 1);
+    pktbuf_t  *test = pktbuf_alloc(2000, 1);
+    /*for (int i = 0; i < 3; i++) {
+        pktbuf_add_header(test,33, 0);
+    }
+
+    for (int i = 0; i < 3; i++) {
+        pktbuf_remove_header(test, 33);
+    }*/
+    pktbuf_free(test);
+    test = pktbuf_alloc(8, 1);
+    pktbuf_resize(test, 16);
+    //pktbuf_resize(test, 256);
+    pktbuf_resize(test, 0);
+    //pktbuf_resize(test, 128);
     return test;
 }
 

@@ -28,7 +28,10 @@ void dbg_print(int debugger_module_level,int s_level,const char* file, const cha
         } \
     } while (0)
 
-
+/*	•	ptr：指向结构体中某个成员的指针（已有的成员指针）。
+•
+type：该成员所在的结构体类型名。
+• member：成员在结构体中的名称。*/
 #define container_of(ptr, type, member) \
 ((type *)((char *)(ptr) - offsetof(type, member)))
 
