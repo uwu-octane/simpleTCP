@@ -93,6 +93,7 @@ void mblock_free(mblock_t *mblock, void *block) {
         sys_sem_notify(mblock->alloc_sem);
     }
 }
+
 void mblock_destroy(mblock_t *mblock) {
     if (mblock->locker.type != NLOCKER_NONE) {
         sys_sem_free(mblock->alloc_sem);

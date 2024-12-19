@@ -68,20 +68,19 @@ pktbuf_t * pktbuf_test(void) {
     pktbuf_init();
     //pktblk_t * pktblk = pktblk_list_alloc(512, 1);
     //pktbuf_free(pktbuf);
-    pktbuf_t  *test = pktbuf_alloc(2000, 1);
-    /*for (int i = 0; i < 3; i++) {
-        pktbuf_add_header(test,33, 0);
-    }
+    pktbuf_t  *test = pktbuf_alloc(511, 0);
 
-    for (int i = 0; i < 3; i++) {
-        pktbuf_remove_header(test, 33);
-    }*/
-    pktbuf_free(test);
-    test = pktbuf_alloc(8, 1);
-    pktbuf_resize(test, 16);
-    //pktbuf_resize(test, 256);
-    pktbuf_resize(test, 0);
+
+    pktbuf_t  * test2 = pktbuf_alloc(233, 0);
+    pktbuf_join(test, test2);
+    //pktbuf_sort_segments(test);
     //pktbuf_resize(test, 128);
+    pktbuf_reset_acc(test);
+    uint8_t temp[1000] = {0};
+    for (int i = 0; i < 1000; i++) {
+        temp[i] = i;
+    }
+    pktbuf_write(test, temp, get_pktbuf_total_size(test));
     return test;
 }
 
@@ -94,16 +93,6 @@ int main(void) {
     int append = 0;
     pktbuf_t * pktbuf = pktbuf_test();
     nlist_t list = pktbuf->blk_list;
-    /*printf("size: %d\n", pktbuf->total_size);
-    nlist_iterator_t iterator = nlist_iterator(&list);
-    while (nlist_iterator_has_next(&iterator)) {
-        plat_printf("list element: %p\n", nlist_iterator_next(&iterator));
-    }*/
-    //plat_printf("pktblk: %p\n", pktblk);
-
-    //net_init();
-    //net_start();
-
 
    // netdriver_init();
 
