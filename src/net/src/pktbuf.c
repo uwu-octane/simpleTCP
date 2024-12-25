@@ -571,11 +571,11 @@ void pktbuf_reset_acc(pktbuf_t *pktbuf) {
     }
 }
 
-static inline int total_blk_remain_space(pktbuf_t *pktbuf) {
+static inline int all_blk_remain_space(const pktbuf_t *pktbuf) {
     return pktbuf->total_size - pktbuf->pos;
 }
 
-static inline int plk_remain_space(pktbuf_t *pktbuf) {
+static inline int plk_remain_space(const pktbuf_t *pktbuf) {
     pktblk_t *pktblk = pktbuf->current_blk;
     if (!pktblk) {
         return 0;
@@ -584,7 +584,7 @@ static inline int plk_remain_space(pktbuf_t *pktbuf) {
 }
 
 // 辅助函数：向前移动指定长度的读写指针
-static void write_move_forward(pktbuf_t *pktbuf, int len) {
+static void move_forward(pktbuf_t *pktbuf, int len) {
     pktbuf->pos += len;
     pktbuf->blk_offset += len;
 
@@ -602,7 +602,7 @@ net_err_t pktbuf_write(pktbuf_t *pktbuf, uint8_t *data_src, int len) {
         return NET_ERR_PARAM;
     }
 
-    int remain_size = total_blk_remain_space(pktbuf);
+    int remain_size = all_blk_remain_space(pktbuf);
     if (remain_size < len) {
         dbg_error(DBG_PKTBUF, "pktbuf_write: no enough space\n");
         return NET_ERR_SIZE;
@@ -615,8 +615,105 @@ net_err_t pktbuf_write(pktbuf_t *pktbuf, uint8_t *data_src, int len) {
         data_src += to_copy;
         len -= to_copy;
         dbg_info(DBG_PKTBUF, "pktbuf_write: write %d bytes, remain %d to write\n", to_copy, len);
-        write_move_forward(pktbuf, to_copy);
+        move_forward(pktbuf, to_copy);
     }
 
     return NET_ERR_OK;
+}
+
+net_err_t pktbuf_read(pktbuf_t *pktbuf, uint8_t *data_dst, int len) {
+    if (!pktbuf || !data_dst || len <= 0) {
+        dbg_error(DBG_PKTBUF, "pktbuf_read: invalid param\n");
+        return NET_ERR_PARAM;
+    }
+
+    int remain_size = all_blk_remain_space(pktbuf);
+    if (remain_size < len) {
+        plat_memcpy(data_dst, pktbuf->blk_offset, remain_size);
+        dbg_warning(DBG_PKTBUF, "pktbuf_read: no enough data, read all remaining %d bytes\n", remain_size);
+        pktbuf_reset_acc(pktbuf);
+        data_dst += remain_size;
+        //len -= remain_size;
+        return NET_ERR_OK;
+        //move_forward(pktbuf, remain_size);
+    }
+
+    while (len) {
+        int remain_blk_space = plk_remain_space(pktbuf);
+        int to_copy = remain_blk_space < len ? remain_blk_space : len;
+        plat_memcpy(data_dst, pktbuf->blk_offset, to_copy);
+        data_dst += to_copy;
+        len -= to_copy;
+        dbg_info(DBG_PKTBUF, "pktbuf_read: read %d bytes, remain %d to read\n", to_copy, len);
+        move_forward(pktbuf, to_copy);
+    }
+
+    return NET_ERR_OK;
+}
+
+
+/**
+ * @brief Adjusts the position in a packet buffer to the specified offset.
+ *
+ * This function moves the position within a packet buffer (`pktbuf_t`) to a specified offset.
+ * It handles both forward and backward movements efficiently by navigating through the linked list
+ * of blocks in the buffer.
+ *
+ * @param pktbuf Pointer to the packet buffer structure.
+ * @param offset The desired offset to seek to.
+ * @return net_err_t Returns NET_ERR_OK on success, or NET_ERR_PARAM if the offset is invalid.
+ */
+net_err_t pktbuf_seek(pktbuf_t *pktbuf, int offset) {
+    // Check if we are already at the desired offset
+    if (pktbuf->pos == offset) {
+        return NET_ERR_OK;
+    }
+
+    // Validate the requested offset
+    if (offset < 0 || offset > pktbuf->total_size) {
+        dbg_error(DBG_PKTBUF, "pktbuf_seek: invalid offset\n");
+        return NET_ERR_PARAM;
+    }
+
+    int bytes_to_skip = 0;
+    // If the desired offset is before the current position, reset to the start
+    if (offset < pktbuf->pos) {
+        pktbuf->current_blk = pktbuf_first_block(pktbuf);
+        pktbuf->blk_offset = pktbuf->current_blk ? pktbuf->current_blk->data_head : (uint8_t *)0;
+        pktbuf->pos = 0;
+        // Calculate how many bytes need to be skipped to reach the new position
+        bytes_to_skip = offset;
+    } else {
+        bytes_to_skip = offset - pktbuf->pos;
+    }
+    // Move through the blocks to adjust the position
+    while (bytes_to_skip) {
+        int remain_blk_space = plk_remain_space(pktbuf);
+        int to_skip = remain_blk_space < bytes_to_skip ? remain_blk_space : bytes_to_skip;
+        move_forward(pktbuf, to_skip);
+        bytes_to_skip -= to_skip;
+    }
+    return NET_ERR_OK;
+}
+
+net_err_t pktbuf_copy(pktbuf_t *dst, pktbuf_t *src, int len) {
+    if (all_blk_remain_space(dst) < len || all_blk_remain_space(src) < len) {
+        dbg_error(DBG_PKTBUF, "pktbuf_copy: no enough data or insufficient data in src\n");
+        return NET_ERR_SIZE;
+    }
+
+    while (len) {
+        int dest_remain_blk_space = plk_remain_space(dst);
+        int src_remain_blk_space = plk_remain_space(src);
+        int to_copy = dest_remain_blk_space < src_remain_blk_space ? dest_remain_blk_space : src_remain_blk_space;
+        to_copy = to_copy < len ? to_copy : len;
+
+        plat_memcpy(dst->blk_offset, src->blk_offset, to_copy);
+        dbg_info(DBG_PKTBUF, "pktbuf_copy: copy %d bytes\n", to_copy);
+        len -= to_copy;
+        move_forward(dst, to_copy);
+        move_forward(src, to_copy);
+    }
+    return NET_ERR_OK;
+
 }

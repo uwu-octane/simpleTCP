@@ -1,3 +1,4 @@
+#include <fixedqueue.h>
 #include <stdio.h>
 #include "sys_plat.h"
 #include "echo/tcp_echo_client.h"
@@ -76,11 +77,28 @@ pktbuf_t * pktbuf_test(void) {
     //pktbuf_sort_segments(test);
     //pktbuf_resize(test, 128);
     pktbuf_reset_acc(test);
-    uint8_t temp[1000] = {0};
-    for (int i = 0; i < 1000; i++) {
-        temp[i] = i;
+    uint8_t temp[100] = {0};
+    for (int i = 0; i < 100; i++) {
+        temp[i] = i << 2;
+        printf( "temp[%d]: %d\n", i, temp[i]);
     }
     pktbuf_write(test, temp, get_pktbuf_total_size(test));
+    uint8_t read_temp[100] = {0};
+    pktbuf_t * dest = pktbuf_alloc(128, 0);
+    pktbuf_reset_acc(test);
+    printf("pos: %d\n", test->pos);
+    pktbuf_seek(test, 20);
+    printf("current pos: %d\n", test->pos);
+    if (pktbuf_copy(dest, test, 20) != NET_ERR_OK) {
+        printf("Error: Failed to copy data\n");
+    }
+    pktbuf_reset_acc(dest);
+    pktbuf_read(dest, read_temp, 20);
+    for (int i = 0; i < 20; i++) {
+        printf("read_temp[%d]: %d\n", i, read_temp[i]);
+    }
+    int res = plat_memcmp(temp + 20, read_temp, 20);
+    printf("res: %d\n", res);
     return test;
 }
 

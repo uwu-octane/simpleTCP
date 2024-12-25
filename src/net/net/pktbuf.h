@@ -47,7 +47,7 @@ static inline pktblk_t* pktbuf_next_block(pktblk_t *pktblk) {
     return container_of(nlist_node_next(&pktblk->node), pktblk_t, node);
 }
 
-static inline int get_pktbuf_total_size(pktbuf_t *pktbuf) {
+static inline int get_pktbuf_total_size(const pktbuf_t *pktbuf) {
     return pktbuf->total_size;
 }
 
@@ -63,4 +63,7 @@ void pktbuf_reset_acc(pktbuf_t *pktbuf);
 
 //return the length of the written data
 net_err_t pktbuf_write(pktbuf_t *pktbuf, uint8_t *data_src, int len);
+net_err_t pktbuf_read(pktbuf_t *pktbuf, uint8_t *data_dst, int len);
+net_err_t pktbuf_seek(pktbuf_t *pktbuf, int offset);
+net_err_t pktbuf_copy(pktbuf_t *dst, pktbuf_t *src, int len);
 #endif // PKTBUF_H
